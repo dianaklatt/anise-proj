@@ -1,31 +1,24 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { fetchProviders } from "@/lib/providers"
+import { NextResponse } from "next/server"
+import { loadProviders } from "@/lib/load-providers"
 import { matchProviders } from "@/lib/matching"
 import type { PatientPreferences } from "@/types"
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
+    // Parse the request body
     const preferences: PatientPreferences = await request.json()
 
-    // Validate the input
-    if (!preferences.areasOfConcern || !preferences.location || !preferences.paymentMethod) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
-    }
+    // Load providers from our mock data
+    const providers = await loadProviders()
 
-    // Fetch providers
-    const providers = await fetchProviders()
-
-    if (!providers || providers.length === 0) {
-      return NextResponse.json({ error: "No providers available" }, { status: 500 })
-    }
-
-    // Match providers
+    // Match providers based on preferences
     const matches = matchProviders(providers, preferences)
 
+    // Return the matches
     return NextResponse.json({ matches })
   } catch (error) {
     console.error("Error in match API:", error)
-    return NextResponse.json({ error: "Failed to process matching request" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to match providers" }, { status: 500 })
   }
 }
 
