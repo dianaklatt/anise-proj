@@ -261,9 +261,11 @@ export function PatientForm({ onSubmit }: PatientFormProps) {
   const [immigrationStatus, setImmigrationStatus] = useState<string[]>([])
   const [occupation, setOccupation] = useState<string[]>([])
 
-  const [therapistGender, setTherapistGender] = useState<string>("")
+  // Changed from string to string[]
+  const [therapistGender, setTherapistGender] = useState<string[]>([])
   const [therapistEthnicity, setTherapistEthnicity] = useState<string[]>([])
-  const [therapistReligion, setTherapistReligion] = useState<string>("")
+  const [therapistReligion, setTherapistReligion] = useState<string[]>([])
+
   const [location, setLocation] = useState<string>("CA")
   const [paymentMethod, setPaymentMethod] = useState<string>("Self-pay")
   const [error, setError] = useState<string | null>(null)
@@ -462,6 +464,11 @@ export function PatientForm({ onSubmit }: PatientFormProps) {
           {/* Therapist Preferences Section */}
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-primary">Therapist Preferences</h3>
+            <div className="bg-secondary/50 p-4 rounded-md mb-4">
+              <p className="text-sm">
+                All therapist preference fields are multi-select. Choose all options that you would be comfortable with.
+              </p>
+            </div>
 
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -469,43 +476,28 @@ export function PatientForm({ onSubmit }: PatientFormProps) {
                   <Label htmlFor="therapistGender" className="text-lg font-medium">
                     Preferred Gender
                   </Label>
-                  <Select value={therapistGender} onValueChange={setTherapistGender}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select gender preference" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Non-binary">Non-binary</SelectItem>
-                      <SelectItem value="Transgender">Transgender</SelectItem>
-                      <SelectItem value="Gender non-conforming">Gender non-conforming</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <MultiSelect
+                    options={genderIdentityOptions}
+                    selected={therapistGender}
+                    onChange={setTherapistGender}
+                    placeholder="Select gender preferences..."
+                  />
+                  <p className="text-sm text-muted-foreground">Select all genders you'd be comfortable with</p>
                 </div>
 
                 <div className="space-y-3">
                   <Label htmlFor="therapistReligion" className="text-lg font-medium">
                     Preferred Religious Background
                   </Label>
-                  <Select value={therapistReligion} onValueChange={setTherapistReligion}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select religious preference" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Christian">Christian</SelectItem>
-                      <SelectItem value="Catholic">Catholic</SelectItem>
-                      <SelectItem value="Protestant">Protestant</SelectItem>
-                      <SelectItem value="Orthodox">Orthodox</SelectItem>
-                      <SelectItem value="Muslim">Muslim</SelectItem>
-                      <SelectItem value="Hindu">Hindu</SelectItem>
-                      <SelectItem value="Buddhist">Buddhist</SelectItem>
-                      <SelectItem value="Jewish">Jewish</SelectItem>
-                      <SelectItem value="Sikh">Sikh</SelectItem>
-                      <SelectItem value="Atheist">Atheist</SelectItem>
-                      <SelectItem value="Agnostic">Agnostic</SelectItem>
-                      <SelectItem value="Spiritual but not religious">Spiritual but not religious</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <MultiSelect
+                    options={religiousBackgroundOptions}
+                    selected={therapistReligion}
+                    onChange={setTherapistReligion}
+                    placeholder="Select religious preferences..."
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Select all religious backgrounds you'd be comfortable with
+                  </p>
                 </div>
               </div>
 
@@ -519,7 +511,7 @@ export function PatientForm({ onSubmit }: PatientFormProps) {
                   onChange={setTherapistEthnicity}
                   placeholder="Select ethnicity preferences..."
                 />
-                <p className="text-sm text-muted-foreground">You can select multiple ethnicities</p>
+                <p className="text-sm text-muted-foreground">Select all ethnicities you'd be comfortable with</p>
               </div>
             </div>
           </div>
