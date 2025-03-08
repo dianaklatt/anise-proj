@@ -1,20 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { HeroSection } from "@/components/hero-section"
 import { PatientForm } from "@/components/patient-form"
 import { Results } from "@/components/results"
+import { LoadingState } from "@/components/loading-state"
+import { ErrorState } from "@/components/error-state"
 import type { PatientPreferences, MatchResult } from "@/types"
-
-// Mock data for initial testing
-const mockResults: MatchResult[] = []
+import { loadProviders } from "@/lib/load-providers"
 
 export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [results, setResults] = useState<MatchResult[]>(mockResults)
+  const [results, setResults] = useState<MatchResult[]>([])
   const [showResults, setShowResults] = useState(false)
+  const [dataLoaded, setDataLoaded] = useState(false)
+
+  // Check if providers data can be loaded on initial render
+  useEffect(() => {
+    const checkDataAccess = async () => {
+      try {
+        const providers = await loadProviders()
+        if (providers.length === 0) {
+          setError("No provider data available. Please check your connection and try again.")
+        } else {
+          setDataLoaded(true)
+        }
+      } catch (err) {
+        console.error("Error checking data access:", err)
+        setError("Failed to access provider data. Please check your connection and try again.")
+      }
+    }
+
+    checkDataAccess()
+  }, [])
 
   const handleSubmit = async (preferences: PatientPreferences) => {
     setLoading(true)
@@ -46,6 +66,12 @@ export default function Home() {
   const handleReset = () => {
     setShowResults(false)
     setResults([])
+    setError(null)
+  }
+
+  const handleRetry = () => {
+    setError(null)
+    window.location.reload()
   }
 
   return (
@@ -55,12 +81,12 @@ export default function Home() {
       {!showResults && <HeroSection />}
 
       <main className="flex-1 container mx-auto py-12 px-4">
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        ) : error ? (
-          <div className="bg-destructive/10 text-destructive p-4 rounded-md">{error}</div>
+        {error ? (
+          <ErrorState message={error} onRetry={handleRetry} />
+        ) : loading ? (
+          <LoadingState message={showResults ? "Finding your matches..." : "Loading..."} />
+        ) : !dataLoaded ? (
+          <LoadingState message="Loading provider data..." />
         ) : showResults ? (
           <Results results={results} onReset={handleReset} />
         ) : (
