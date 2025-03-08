@@ -22,6 +22,6 @@ This project is a web application for matching patients with therapists based on
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/anise-health-matching.git
+   git clone https://github.com/dianaklatt/anise-health-matching.git
    cd anise-health-matching
 
